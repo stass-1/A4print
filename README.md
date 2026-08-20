@@ -1,30 +1,61 @@
 # A4print
 
-A framework for **one designed sheet of paper at a time** — cheat sheets, CVs, one-pagers,
-programmes, certificates, posters — written in HTML and CSS, laid out so that the screen
-and the printed page are the same thing.
+Print-ready documents that look the same on screen and on paper.
 
-Most HTML-to-PDF tooling solves the opposite problem: take long text and cut it into
-pages. A4print takes a page and fits content to it.
+Give Claude a topic and get back a finished sheet — a cheat sheet, a CV, a one-pager, a
+programme, a certificate — laid out to fill exactly one page, ready to print or export to
+PDF. Nothing drifts onto a second page, and nothing ends up half empty.
 
-## How it works
+Built for **one designed sheet at a time**. For long documents that should paginate
+themselves — reports, books, manuals — use [Paged.js](https://pagedjs.org/) or
+[Vivliostyle](https://vivliostyle.org/) instead.
 
-`.sheet` is a fixed-proportion container (`container-type: inline-size` +
-`aspect-ratio`), and the entire type scale and vertical rhythm are expressed in `cqw` —
-container width units. Nothing is in `px` or `pt`, so the layout cannot reflow between
-screen and paper, and cannot silently spill onto a second page.
+## Install
 
-Two knobs control fit, and only two:
+As a Claude Code skill:
 
-| | |
-|---|---|
-| `--t-scale` | type scale multiplier — what autofit drives; floor 0.90 |
-| `--rhythm` | density of the vertical ladder — proportions preserved |
+```bash
+git clone https://github.com/stass-1/A4print ~/.claude/skills/a4print
+```
 
-## The part that is actually new
+Claude will pick it up automatically whenever you ask for something printable.
 
-A person can see that a sheet overflowed, or that its bottom third is empty. A language
-model cannot. `bin/fit-check.sh` turns both into numbers:
+To use it by hand instead, clone it anywhere and copy an example:
+
+```bash
+git clone https://github.com/stass-1/A4print
+cp A4print/examples/cv.html my-sheet.html
+```
+
+Optional: install [poppler](https://poppler.freedesktop.org/) (`brew install poppler`) so
+the checker can render the printed page and spot widowed lines.
+
+## Use it
+
+Just ask. The skill handles the layout, checks that the result fits, and shows you the
+printed page.
+
+> Make me an A4 cheat sheet on German separable verbs — the rule, the common prefixes,
+> and a dozen examples with the verb in both positions.
+
+> Turn `notes.md` into a one-page handout my students can keep next to them during the
+> exercise.
+
+> Build my CV from `career.md` as a single A4 sheet. Aim it at product engineering roles
+> at small companies.
+
+> Take this cheat sheet and make a Letter-size version for a US printer.
+
+> The bottom third of the sheet is empty. Fill it out — don't just stretch what's there.
+
+> There's too much text now. Fit it, and tell me if it stops being readable in print.
+
+Then print it: **Chrome → Print → scale 100%, margins None, background graphics on.** Or
+let Claude export the PDF for you, which avoids getting those three settings wrong.
+
+## Check that it fits
+
+Every sheet can be verified without opening a browser:
 
 ```
 $ ./bin/fit-check.sh examples/cv.html
@@ -40,56 +71,43 @@ $ ./bin/fit-check.sh examples/cv.html
   OK    fits, and fills the sheet.
 ```
 
-It runs the page in headless Chrome, reads the measurements `js/fit.js` stamps onto
-`<html>`, prints the document, compares the real page count against the declared sheet
-count, checks for widowed last lines, and renders the **printed** page to PNG so the
-layout can be looked at rather than assumed. No driver, no npm dependency — Chrome and
-`python3`, plus poppler if you have it.
+- **pages must equal sheets** — otherwise something spilled over.
+- **fill** is how much of the page the content uses. Below 0.90 the sheet looks
+  unfinished; above 1.00 it overflowed.
+- **png** is the actual printed page, so you can look rather than guess.
 
-On screen, the same measurements drive a panel next to the Print button: live fill
-percentage per sheet, sliders for scale and density, autofit, and add/remove sheet.
+On screen there's a panel next to the Print button doing the same thing live: fill
+percentage, sliders for type size and density, an autofit button, and add/remove sheet.
 
-Autofit refuses to shrink past `--t-scale: 0.90` and says why: below that, small type in
-the secondary ink levels dissolves on a mono laser printer. Cut the text or add a sheet.
+Autofit will not shrink the type below 90%. Past that, small print stops surviving a
+black-and-white laser printer — so it stops and tells you to cut text or add a sheet
+instead.
 
-## Layout
+## Adjusting a sheet by hand
 
-```
-css/sheet.css          core + components, one file, @layer'd
-css/theme/*.css        palette + type pair (resume, editorial)
-css/format/*.css       Letter, A5, A3, A4 landscape
-js/fit.js              fit panel + measurement API (window.A4)
-bin/fit-check.sh       the verification loop
-examples/              two documents built on the framework
-SKILL.md               the doctrine, as a Claude Code skill
-```
+Two knobs, in your document's `<style>`:
 
-Cascade layers are declared as `a4.core, a4.components, a4.theme, doc` — your document's
-`@layer doc { … }` outranks the framework without a single `!important`.
-
-The two examples are a one-page CV and a language cheat sheet — between them they
-exercise every component in the library. The CV's person, employers and projects are
-invented; it is there to show the layout at a realistic text density.
-
-## Scope
-
-For long documents that should paginate themselves — reports, books, manuals — use
-[Paged.js](https://pagedjs.org/) or [Vivliostyle](https://vivliostyle.org/). A4print is
-deliberately about the fixed single sheet, and multi-sheet documents distribute their
-content by hand.
-
-## Quick start
-
-```bash
-cp -r examples/cv.html my-sheet.html      # then edit
-./bin/fit-check.sh my-sheet.html
+```css
+@layer doc {
+  .sheet {
+    --t-scale: 0.95;   /* type size, everything at once */
+    --rhythm:  0.92;   /* how tight the vertical spacing is */
+  }
+}
 ```
 
-As a Claude Code skill:
+Everything else — colours, fonts, components — is documented in
+[SKILL.md](SKILL.md), which is also what Claude reads.
 
-```bash
-git clone <this repo> ~/.claude/skills/a4print
-```
+Themes: `resume` (quiet, single colour) and `editorial` (green and amber, for teaching
+material). Formats: A4, Letter, A5, A3, A4 landscape.
+
+## Examples
+
+`examples/cv.html` — a one-page CV. `examples/cheatsheet.html` — a Lithuanian grammar
+cheat sheet. Between them they use every component in the library. The CV's person,
+employers and projects are invented; it's there to show the layout at a realistic text
+density.
 
 ## Licence
 
