@@ -128,7 +128,7 @@ is a spring already. Everything else keeps its fixed rhythm.
 Multiple sibling `.sheet` elements, each with its own `.flow`. Each stays a fixed page;
 print breaks between them automatically. **Distribute the content yourself** — there is
 no auto-flow, deliberately: on a designed sheet you decide what lands on page two.
-`window.A4.addSheet()` / the `+ лист` button add one.
+`window.A4.addSheet()` or the `+ sheet` button adds one.
 
 ## The panel
 

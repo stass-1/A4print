@@ -197,17 +197,17 @@
     panel.className = 'fitbar';
     panel.innerHTML =
       '<div class="fitbar__chips"></div>' +
-      '<div class="fitbar__group"><label for="a4-scale">кегль</label>' +
+      '<div class="fitbar__group"><label for="a4-scale">type</label>' +
       '<input id="a4-scale" type="range" min="0.9" max="1.3" step="0.005" value="1">' +
       '<output for="a4-scale">1.00</output></div>' +
-      '<div class="fitbar__group"><label for="a4-rhythm">плотность</label>' +
+      '<div class="fitbar__group"><label for="a4-rhythm">density</label>' +
       '<input id="a4-rhythm" type="range" min="0.82" max="1.15" step="0.005" value="1">' +
       '<output for="a4-rhythm">1.00</output></div>' +
       '<div class="fitbar__group">' +
-      '<button type="button" data-act="fit">Подогнать</button>' +
-      '<button type="button" data-act="add">+ лист</button>' +
-      '<button type="button" data-act="remove">− лист</button>' +
-      '<button type="button" data-act="reset">Сброс</button></div>' +
+      '<button type="button" data-act="fit">Autofit</button>' +
+      '<button type="button" data-act="add">+ sheet</button>' +
+      '<button type="button" data-act="remove">- sheet</button>' +
+      '<button type="button" data-act="reset">Reset</button></div>' +
       '<p class="fitbar__msg"></p>';
 
     var bar = document.querySelector('.bar');
@@ -243,13 +243,13 @@
         explain(res);
       } else if (act === 'add') {
         addSheet();
-        say('Лист добавлен. Перенеси на него часть содержимого — автопотока здесь нет намеренно.', 'info');
+        say('Sheet added. Move some content onto it yourself — there is no auto-flow, deliberately.', 'info');
       } else if (act === 'remove') {
         var r = removeSheet();
         if (!r.ok && r.reason === 'not-empty') {
-          say('Последний лист не пустой — сначала убери с него содержимое.', 'warn');
+          say('The last sheet is not empty — clear its content first.', 'warn');
         } else if (!r.ok) {
-          say('Остался один лист.', 'info');
+          say('Only one sheet left.', 'info');
         }
       } else if (act === 'reset') {
         applyAll('--t-scale', '');
@@ -279,13 +279,13 @@
     var floored = results.some(function (r) { return r.reason === 'overflow-at-floor'; });
     var ceiled  = results.some(function (r) { return r.reason === 'underfull-at-ceiling'; });
     if (floored) {
-      say('Не влезает даже на минимальном кегле — дальше жать нельзя, на ч/б печати ' +
-          'станет нечитаемо. Режь текст или добавь лист.', 'bad');
+      say('Does not fit even at the smallest type size. Shrinking further would not ' +
+          'survive a black-and-white printer — cut text, or add a sheet.', 'bad');
     } else if (ceiled) {
-      say('Содержимого мало даже на максимальном кегле — лист останется полупустым. ' +
-          'Добавь содержания или возьми формат поменьше.', 'warn');
+      say('Too little content even at the largest type size — the sheet will stay ' +
+          'half empty. Add material, or move to a smaller format.', 'warn');
     } else {
-      say('Подогнано.', 'info');
+      say('Fitted.', 'info');
     }
   }
 
@@ -297,11 +297,11 @@
       var el = document.createElement('span');
       el.className = 'chip chip--' + cls;
       el.textContent = (fills.length > 1 ? (i + 1) + ': ' : '') + Math.round(f * 100) + '%';
-      el.title = cls === 'over' ? 'переполнение' : cls === 'under' ? 'дырка внизу' : 'заполнено';
+      el.title = cls === 'over' ? 'overflowing' : cls === 'under' ? 'empty at the bottom' : 'fills the sheet';
       chips.appendChild(el);
     });
     if (verdict === 'over' && msg && !msg.textContent) {
-      say('Содержимое не помещается на лист.', 'bad');
+      say('Content does not fit on the sheet.', 'bad');
     }
   }
 
