@@ -1,0 +1,1 @@
+@layer a4.core { :root { --sheet-w: 297; --sheet-h: 420; } @page { size: A3 portrait; margin: 0; } }

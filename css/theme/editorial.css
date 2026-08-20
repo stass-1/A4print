@@ -1,0 +1,72 @@
+/* ==========================================================================
+   Theme: editorial — warm paper, forest green, amber accent
+   --------------------------------------------------------------------------
+   The palette of the Lithuanian genitive cheat sheet. Two accents: green
+   carries structure (labels, section bands), amber carries the payload —
+   the thing the reader came for. Do not introduce a third.
+   ========================================================================== */
+@layer a4.theme {
+
+  :root {
+    --bg:        #E7E9E3;
+    --paper:     #FFFFFF;
+    --ink:       #1B2420;
+    --ink-2:     #59635D;
+    --ink-3:     #8C958F;
+    --rule:      #DCE0D9;
+    --rule-firm: #B9C0B7;
+    --accent:    #2E6B4E;
+    --accent-2:  #9E6708;
+    --accent-bg: #F9F1E1;
+
+    --serif: "Palatino Linotype", "Iowan Old Style", "Charter", Palatino, "Book Antiqua", Georgia, serif;
+    --sans:  system-ui, "Segoe UI", "Noto Sans", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  /* dark is a screen convenience only; print always resolves to the block below */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #0E1211;
+      --paper:     #191D1B;
+      --ink:       #ECEFE9;
+      --ink-2:     #A3ADA6;
+      --ink-3:     #79837D;
+      --rule:      #2C3230;
+      --rule-firm: #3D4744;
+      --accent:    #76BA95;
+      --accent-2:  #E2B15C;
+      --accent-bg: #272016;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:        #0E1211;
+    --paper:     #191D1B;
+    --ink:       #ECEFE9;
+    --ink-2:     #A3ADA6;
+    --ink-3:     #79837D;
+    --rule:      #2C3230;
+    --rule-firm: #3D4744;
+    --accent:    #76BA95;
+    --accent-2:  #E2B15C;
+    --accent-bg: #272016;
+  }
+
+  /* On paper the secondary levels are darker than on screen: small type in
+     light grey dissolves into halftone on a mono laser printer. The steps
+     ink > ink-2 > ink-3 are preserved — flattening them for "contrast"
+     destroys the hierarchy they carry. */
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"] {
+      --bg:        #FFFFFF;
+      --paper:     #FFFFFF;
+      --ink:       #14201B;
+      --ink-2:     #3E4A45;
+      --ink-3:     #545F59;
+      --rule:      #B4BCB3;
+      --rule-firm: #9FA8A0;
+      --accent:    #235741;
+      --accent-2:  #8A5806;
+      --accent-bg: #FFFFFF;
+    }
+  }
+}

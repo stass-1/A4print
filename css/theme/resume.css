@@ -1,0 +1,69 @@
+/* ==========================================================================
+   Theme: resume — single hue, two lightnesses, no highlight colour
+   --------------------------------------------------------------------------
+   For dense professional sheets. One accent in two lightnesses of the same
+   tone: --accent (dark) for small uppercase labels, where density matters on
+   a mono printer, and --accent-2 (lighter) for names set in 12pt roman,
+   where the dark accent muddied into the body colour.
+   --accent-bg is deliberately near-white: this theme does not do highlights.
+   ========================================================================== */
+@layer a4.theme {
+
+  :root {
+    --bg:        #E7E9E3;
+    --paper:     #FFFFFF;
+    --ink:       #1B2420;
+    --ink-2:     #59635D;
+    --ink-3:     #8C958F;
+    --rule:      #DCE0D9;
+    --rule-firm: #B9C0B7;
+    --accent:    #2E6B4E;
+    --accent-2:  #2E8A60;
+    --accent-bg: #EDF3EE;
+
+    --serif: "Palatino Linotype", "Iowan Old Style", "Charter", Palatino, "Book Antiqua", Georgia, serif;
+    --sans:  system-ui, "Segoe UI", "Noto Sans", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #0E1211;
+      --paper:     #191D1B;
+      --ink:       #ECEFE9;
+      --ink-2:     #A3ADA6;
+      --ink-3:     #79837D;
+      --rule:      #2C3230;
+      --rule-firm: #3D4744;
+      --accent:    #76BA95;
+      --accent-2:  #62B48A;
+      --accent-bg: #1B2721;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:        #0E1211;
+    --paper:     #191D1B;
+    --ink:       #ECEFE9;
+    --ink-2:     #A3ADA6;
+    --ink-3:     #79837D;
+    --rule:      #2C3230;
+    --rule-firm: #3D4744;
+    --accent:    #76BA95;
+    --accent-2:  #62B48A;
+    --accent-bg: #1B2721;
+  }
+
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"] {
+      --bg:        #FFFFFF;
+      --paper:     #FFFFFF;
+      --ink:       #14201B;
+      --ink-2:     #3E4A45;
+      --ink-3:     #545F59;
+      --rule:      #B4BCB3;
+      --rule-firm: #9FA8A0;
+      --accent:    #235741;
+      --accent-2:  #26805B;
+      --accent-bg: #FFFFFF;
+    }
+  }
+}

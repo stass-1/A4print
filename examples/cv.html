@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avery Lindqvist — Product Engineer</title>
+<!-- Sample document. The person, the companies and the projects below are
+     invented; the file exists to exercise the framework's components at a
+     realistic text density. -->
+<link rel="stylesheet" href="../css/sheet.css">
+<link rel="stylesheet" href="../css/theme/resume.css">
+<style>
+  /* Document layer — always wins over the framework, no !important needed. */
+  @layer doc {
+    .sheet {
+      --t-display-n: 4.7;
+      --pair-key-w: 11cqw;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <p>One A4 sheet. Print at <kbd>100%</kbd> scale, margins <kbd>None</kbd>, background graphics on.</p>
+  <button class="print-btn" type="button" onclick="window.print()">Print</button>
+</div>
+
+<article class="sheet">
+<div class="flow">
+
+  <header class="mast">
+    <div>
+      <p class="eyebrow">Product Engineer</p>
+      <h1>Avery Lindqvist</h1>
+    </div>
+    <div class="mast__aside">
+      <div>Gothenburg, Sweden<span class="sep">·</span>+1 555 0142</div>
+      <div><a href="mailto:avery@example.com">avery@example.com</a></div>
+      <div><a href="https://example.com/in/avery">example.com/in/avery</a><span class="sep">·</span><a href="https://example.com/avery">example.com/avery</a></div>
+      <div class="faint">EU citizen · open to hybrid</div>
+    </div>
+  </header>
+
+  <p class="lede">
+    16 years building products end to end — from interface design, through frontend architecture, to running
+    the infrastructure underneath. Comfortable as the only engineer on a thing, from first sketch to launch.
+  </p>
+
+  <section>
+    <h2 class="band-label">Experience</h2>
+    <div class="entries">
+
+      <article class="entry">
+        <div class="entry__head">
+          <h3>Founder &amp; solo engineer <span class="org">Sundial</span></h3>
+          <span class="entry__meta">Mar 2024 – Present</span>
+        </div>
+        <p class="note">Shared scheduling for small teams · <a href="https://example.com/sundial">example.com/sundial</a> · two-minute walkthrough</p>
+        <ul>
+          <li>Zero to paying customers in five months as the only person on it — research, interface, backend, deployment, billing and the legal pages; built on evenings and weekends alongside a full-time role until late 2024.</li>
+          <li>Chose and built the whole stack — TypeScript, Vite, Postgres, a small Go service for the calendar sync — with real-time multi-user editing, offline drafts and translations into four languages.</li>
+          <li>Ran the support inbox personally for the first year, which is where most of the roadmap came from.</li>
+        </ul>
+      </article>
+
+      <article class="entry">
+        <div class="entry__head">
+          <h3>Senior Software Engineer <span class="org">Kestrel Data</span></h3>
+          <span class="entry__meta">2019 – Feb 2024</span>
+        </div>
+        <p class="note">FinTech · reporting platform for asset managers · flat team of nine</p>
+        <ul>
+          <li>Built a document-review interface: an extraction model pre-fills the fields, reviewers correct them by clicking words directly in the rendered page, and every correction feeds back as training data; confidence markers flag only the uncertain rows.</li>
+          <li>Built the platform's first CI/CD pipeline from scratch, and moved the frontend suite off a browser-only runner onto a mix of unit tests and a thin end-to-end layer — several thousand cases in all.</li>
+          <li>Ran the accessibility pass that took the reporting views to WCAG AA, and wrote the checklist the team still uses.</li>
+        </ul>
+      </article>
+
+      <article class="entry">
+        <div class="entry__head">
+          <h3>Software Engineer <span class="org">Arbor Systems</span></h3>
+          <span class="entry__meta">2013 – 2019</span>
+        </div>
+        <ul>
+          <li>Built and maintained the frontend across a hospital group's software — check-in kiosks, patient flow boards, a tablet records app for clinicians; earlier, sole developer on a high-traffic recruitment site, and a browser extension that moved page templates from hand-coded HTML to visual editing by the content team.</li>
+          <li>Sat with clinicians during rollouts rather than collecting requirements second-hand, which is how the kiosk flow ended up three screens shorter than specified.</li>
+        </ul>
+      </article>
+
+      <article class="entry">
+        <div class="entry__head">
+          <h3>Earlier <span class="org">Havermill, Loomis, freelance</span></h3>
+          <span class="entry__meta">2009 – 2013</span>
+        </div>
+        <p class="note">Interface design for mobile games and for a component library, then web engineering — four years of design practice that still shapes the work.</p>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="muted">
+    <h2 class="band-label">Selected side work</h2>
+    <div class="entry__head">
+      <h3>Typesetting toolkit for printed sheets <span class="org">open source</span></h3>
+      <span class="entry__meta">2025</span>
+    </div>
+    <p>
+      A small CSS framework for documents that must fit exactly one page, with a
+      <b>headless verification step</b> that reports whether the layout actually fits and fills the sheet.
+      Grew out of laying out teaching handouts.
+    </p>
+  </section>
+
+  <section>
+    <h2 class="band-label">Skills</h2>
+    <dl class="pairs">
+      <dt>Frontend</dt>
+      <dd>TypeScript · React · Vite · state modelling · design systems · CSS layout and typography · accessibility · internationalisation · progressive web apps</dd>
+      <dt>Backend</dt>
+      <dd>Go · Node · Postgres · schema design · background jobs · REST and streaming APIs</dd>
+      <dt>Delivery</dt>
+      <dd>CI/CD · containers · observability · Playwright · load testing · incident review</dd>
+    </dl>
+  </section>
+
+  <p class="footline">
+    <b>Swedish</b> — native<span class="sep">·</span><b>English</b> — fluent<span class="sep">·</span><b>German</b> — conversational
+  </p>
+
+</div>
+</article>
+
+<script src="../js/fit.js"></script>
+</body>
+</html>

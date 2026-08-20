@@ -1,0 +1,573 @@
+/* ==========================================================================
+   A4print — sheet.css
+   --------------------------------------------------------------------------
+   A designed sheet of paper, laid out so that screen and paper are identical.
+
+   The core idea: .sheet is a fixed-proportion container (container-type:
+   inline-size + aspect-ratio) and the entire type scale and rhythm are
+   expressed in cqw — container width units. Nothing is measured in px or pt,
+   so the layout cannot reflow between screen and print, and cannot silently
+   spill onto a second page.
+
+   Two knobs control fit, and only two:
+     --t-scale   type scale multiplier   (autofit drives this one)
+     --rhythm    vertical gap multiplier (density; proportions preserved)
+
+   Layer order: theme beats components, the document beats everything.
+   Load this file BEFORE the theme — the @layer statement below fixes the
+   cascade order regardless, but the declaration must come first.
+   ========================================================================== */
+
+@layer a4.core, a4.components, a4.theme, doc;
+
+/* ==========================================================================
+   CORE — geometry, scale, rhythm, print
+   ========================================================================== */
+@layer a4.core {
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* ---- paper format -----------------------------------------------------
+     Unitless numbers in mm. Override on :root, or load a css/format/*.css.
+     A matching @page rule must exist for headless printing — that is the
+     only reason the format files exist as separate files. */
+  :root {
+    --sheet-w: 210;
+    --sheet-h: 297;
+    --sheet-pad-y: 5%;
+    --sheet-pad-x: 5.4%;
+  }
+
+  @page { size: A4 portrait; margin: 0; }
+
+  body {
+    margin: 0;
+    padding: 16px 12px 40px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- the sheet -------------------------------------------------------- */
+  .sheet {
+    container-type: inline-size;
+    width: min(calc(var(--sheet-w) * 1mm), 100%);
+    aspect-ratio: var(--sheet-w) / var(--sheet-h);
+    /* Without this the sheet is free to grow past its own aspect ratio: as a
+       flex item it gets min-height:auto, content wins, and an overflowing
+       sheet quietly renders as a taller sheet that still looks fine. Pinned
+       to 0, the page stays exactly one page and the excess spills over the
+       paper edge, where both a person and the fit meter can see it. */
+    min-height: 0;
+    padding: var(--sheet-pad-y) var(--sheet-pad-x);
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1px 2px rgba(0,0,0,.16), 0 10px 30px rgba(0,0,0,.13);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Content lives in .flow, not directly in .sheet. The sheet has a fixed
+     height, so overflow there is invisible and unmeasurable; .flow is what
+     the fit meter measures against. */
+  .sheet > .flow {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  /* Blocks must NOT shrink to fit. Flex items shrink by default, which would
+     let an overflowing sheet quietly compress itself into looking fine — the
+     fit meter would read 99% while Chrome printed a second page. With shrink
+     off, overflow is visible on screen and measurable in the meter. */
+  .sheet > .flow > * { flex-shrink: 0; }
+
+  /* ---- type scale -------------------------------------------------------
+     Every step is a plain number × 1cqw × --t-scale. Override the number
+     (--t-body-n: 1.6), never the computed value — autofit needs --t-scale
+     to stay the single multiplier. */
+  .sheet {
+    --t-scale: 1;
+
+    --t-display-n: 4.7;   /* masthead h1                      */
+    --t-jumbo-n:   4.4;   /* .stat — a number worth staring at */
+    --t-feature-n: 2.7;   /* .pairs--transform terms          */
+    --t-title-n:   2.05;  /* entry headings                   */
+    --t-lede-n:    1.86;  /* opening paragraph                */
+    --t-body-n:    1.82;  /* running text, bullets            */
+    --t-dense-n:   1.62;  /* dense grids — key/value, tables  */
+    --t-small-n:   1.48;  /* notes, glosses, secondary        */
+    --t-meta-n:    1.32;  /* dates, contacts, fine print      */
+    --t-label-n:   1.18;  /* uppercase labels                 */
+
+    --t-display: calc(var(--t-display-n) * 1cqw * var(--t-scale));
+    --t-jumbo:   calc(var(--t-jumbo-n)   * 1cqw * var(--t-scale));
+    --t-feature: calc(var(--t-feature-n) * 1cqw * var(--t-scale));
+    --t-title:   calc(var(--t-title-n)   * 1cqw * var(--t-scale));
+    --t-lede:    calc(var(--t-lede-n)    * 1cqw * var(--t-scale));
+    --t-body:    calc(var(--t-body-n)    * 1cqw * var(--t-scale));
+    --t-dense:   calc(var(--t-dense-n)   * 1cqw * var(--t-scale));
+    --t-small:   calc(var(--t-small-n)   * 1cqw * var(--t-scale));
+    --t-meta:    calc(var(--t-meta-n)    * 1cqw * var(--t-scale));
+    --t-label:   calc(var(--t-label-n)   * 1cqw * var(--t-scale));
+  }
+
+  /* ---- vertical rhythm --------------------------------------------------
+     One ladder, multiplied by --rhythm. The PROPORTION between these is the
+     grouping — an entry heading must sit visibly closer to its own bullets
+     than to the next entry. Tighten with --rhythm, never by editing single
+     gaps, or the ladder collapses into evenly spaced mush. */
+  .sheet {
+    --rhythm: 1;
+    --gap-section:      calc(5cqw    * var(--rhythm));
+    --gap-lede-section: calc(6.2cqw  * var(--rhythm));
+    --gap-entry:        calc(4.1cqw  * var(--rhythm));
+    --gap-entry-body:   calc(.75cqw  * var(--rhythm));
+    --gap-bullet:       calc(.85cqw  * var(--rhythm));
+    --gap-pair:         calc(1.15cqw * var(--rhythm));
+    --gap-col:          2.6cqw;
+  }
+
+  .sheet.loose { --rhythm: 1.06; }
+  .sheet.snug  { --rhythm: .95;  }
+  .sheet.tight { --rhythm: .88;  }
+
+  /* ---- springs ----------------------------------------------------------
+     Slack goes only where the design allows it. Fixed rhythm everywhere
+     else. .is-measuring collapses springs so the fit meter reads the
+     natural content height instead of a spring-inflated 100%. */
+  .spring,
+  .footline { margin-top: auto; }
+  .spring--grow { flex: 1 1 auto; }
+
+  .sheet.is-measuring .spring,
+  .sheet.is-measuring .footline { margin-top: 0; }
+  .sheet.is-measuring .spring--grow { flex-grow: 0; }
+
+  /* ---- widows and orphans ----------------------------------------------- */
+  .lede, .note, .entry li, .pairs dd, .fine p, .footline, .muted p {
+    text-wrap: pretty;
+  }
+
+  /* ---- print ------------------------------------------------------------ */
+  @media print {
+    body { display: block; padding: 0; background: #FFFFFF; }
+    .bar, .fitbar { display: none !important; }
+
+    .sheet {
+      width:  calc(var(--sheet-w) * 1mm);
+      height: calc(var(--sheet-h) * 1mm);
+      aspect-ratio: auto;
+      box-shadow: none;
+      break-inside: avoid;
+      break-after: page;
+    }
+    /* sheets are <article>; a trailing <script> does not create a blank page */
+    .sheet:last-of-type { break-after: auto; }
+
+    a { color: inherit; text-decoration: none; }
+  }
+}
+
+/* ==========================================================================
+   COMPONENTS — the printed vocabulary
+   --------------------------------------------------------------------------
+   Every block here is generic on purpose. Both reference documents (a
+   language cheat sheet and a CV) are built from this same set; if a block
+   only ever made sense for one of them, it did not belong in the framework.
+   ========================================================================== */
+@layer a4.components {
+
+  /* ---- screen-only toolbar ---------------------------------------------- */
+  .bar {
+    width: min(calc(var(--sheet-w) * 1mm), 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .bar p { margin: 0; }
+  .bar kbd {
+    font-family: var(--sans);
+    border: 1px solid var(--rule-firm);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+  .print-btn {
+    font: inherit;
+    font-weight: 600;
+    color: var(--paper);
+    background: var(--accent);
+    border: none;
+    border-radius: 4px;
+    padding: 7px 14px;
+    cursor: pointer;
+  }
+  .print-btn:hover { filter: brightness(1.08); }
+  .print-btn:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+  /* ---- masthead ---------------------------------------------------------
+     Left: eyebrow + title + subtitle. Right: a free slot — contacts on a CV,
+     the question a cheat sheet answers, a date, a logo. */
+  .mast {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 3cqw;
+    padding-bottom: 1.9cqw;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 2cqw;
+  }
+  .mast h1 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: var(--t-display);
+    font-weight: 600;
+    line-height: .95;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .eyebrow {
+    margin: 0 0 .5cqw;
+    font-size: var(--t-label);
+    font-weight: 600;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .mast .sub {
+    margin: .7cqw 0 0;
+    font-size: var(--t-small);
+    color: var(--ink-2);
+  }
+  .mast__aside {
+    flex: none;
+    text-align: right;
+    font-size: var(--t-meta);
+    line-height: 1.65;
+    color: var(--ink-2);
+  }
+  .mast__aside a { color: inherit; text-decoration: none; }
+
+  /* ---- section label with a trailing rule ------------------------------- */
+  .band-label {
+    display: flex;
+    align-items: baseline;
+    gap: .9em;
+    margin: 0 0 1.6cqw;
+    font-size: var(--t-label);
+    font-weight: 700;
+    letter-spacing: var(--band-tracking, .2em);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  /* the trailing half of a band label — a translation, a date, a caveat.
+     It stays uppercase: the band is one typographic object, and breaking
+     the case halfway through reads as two labels colliding. */
+  .band-label span {
+    font-weight: 500;
+    letter-spacing: .1em;
+    color: var(--ink-3);
+  }
+  .band-label::after {
+    content: "";
+    flex: 1;
+    height: 0;
+    border-top: 1px solid var(--rule);
+    transform: translateY(-.25em);
+  }
+
+  /* ---- sections and the lede -------------------------------------------- */
+  .flow > section { margin-top: var(--gap-section); }
+  .lede {
+    margin: 1.5cqw 0 0;
+    font-size: var(--t-lede);
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .lede + section { margin-top: var(--gap-lede-section); }
+
+  /* ---- entries ----------------------------------------------------------
+     A list of things that each have a heading, an optional aside, an
+     optional note and a body. Jobs on a CV, rules on a cheat sheet,
+     line items on a programme. */
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-entry);
+  }
+  .entries--ruled { gap: 0; }
+  .entries--ruled > .entry {
+    padding: calc(var(--gap-entry) * .45) 0;
+    border-top: 1px solid var(--rule);
+  }
+  .entries--ruled > .entry:first-child { border-top: none; padding-top: .3cqw; }
+
+  .entry__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5cqw;
+  }
+  .entry__head h3,
+  .entry__title {
+    margin: 0;
+    font-size: var(--t-title);
+    font-weight: 650;
+    line-height: 1.15;
+  }
+  /* second half of a heading — the employer, the source, the term.
+     The dot is the same separator used in the masthead, notes and footer;
+     no second separator glyph is ever introduced on a sheet. */
+  .org {
+    font-family: var(--serif);
+    font-weight: 700;
+    color: var(--accent-2);
+  }
+  .org::before {
+    content: "\00B7";
+    font-family: var(--sans);
+    font-weight: 400;
+    padding-right: .32em;
+  }
+  .entry__meta {
+    flex: none;
+    font-size: var(--t-meta);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    font-weight: 400;
+    color: var(--ink-2);
+  }
+  .note {
+    margin: .3cqw 0 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: var(--t-small);
+    line-height: 1.4;
+    color: var(--ink-3);
+  }
+  .note a { color: inherit; }
+
+  .entry ul {
+    margin: var(--gap-entry-body) 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--t-body);
+    line-height: 1.55;
+  }
+  .entry li {
+    position: relative;
+    padding-left: 1.5cqw;
+    margin-bottom: var(--gap-bullet);
+  }
+  .entry li:last-child { margin-bottom: 0; }
+  .entry li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: .58em;
+    width: .35cqw;
+    height: .35cqw;
+    border-radius: 50%;
+    background: var(--rule-firm);
+  }
+
+  /* numbered / three-column entry: index | subject | examples */
+  .entry--split {
+    display: grid;
+    grid-template-columns: var(--entry-num-w, 3.4cqw) var(--entry-main-w, 20cqw) 1fr;
+    gap: 0 1.4cqw;
+    align-items: baseline;
+  }
+  .entry__num {
+    font-family: var(--serif);
+    font-size: var(--t-title);
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* ---- pairs — key/value and a → b -------------------------------------- */
+  .pairs {
+    display: grid;
+    grid-template-columns: var(--pair-key-w, 11cqw) 1fr;
+    gap: var(--gap-pair) 1.8cqw;
+    font-size: var(--t-dense);
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  .pairs dt {
+    font-size: var(--t-label);
+    font-weight: 700;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding-top: .25cqw;
+  }
+  .pairs dd { margin: 0; }
+
+  .pairs--transform {
+    display: flex;
+    flex-direction: column;
+    gap: 1.3cqw;
+  }
+  .pair {
+    display: grid;
+    grid-template-columns: var(--pair-from-w, 6.4cqw) 2.2cqw var(--pair-to-w, 7.6cqw) 1fr;
+    align-items: baseline;
+    gap: 0 .3cqw;
+  }
+  .pair__from,
+  .pair__to {
+    font-family: var(--serif);
+    font-size: var(--t-feature);
+    line-height: 1.15;
+  }
+  .pair__from { color: var(--ink-2); }
+  .pair__to   { color: var(--accent-2); font-weight: 700; }
+  .pair__mark {
+    font-size: calc(var(--t-feature) * .56);
+    color: var(--rule-firm);
+    justify-self: center;
+  }
+  .pair__eg {
+    font-family: var(--serif);
+    font-size: var(--t-small);
+    color: var(--ink-2);
+  }
+  .pair__eg b { color: var(--accent-2); font-weight: 700; }
+
+  /* ---- columns ----------------------------------------------------------- */
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 2), 1fr);
+    gap: var(--gap-col-row, 1.8cqw) var(--gap-col);
+  }
+  /* hairline between columns — single-row layouts only */
+  .cols--ruled > * + * {
+    border-left: 1px solid var(--rule);
+    padding-left: var(--gap-col);
+  }
+  .cols--ruled { column-gap: 0; }
+  /* standalone vertical hairline, for hand-built grids */
+  .rule { background: var(--rule); }
+
+  /* ---- stat — a figure worth staring at ---------------------------------- */
+  .stats { display: flex; flex-direction: column; gap: 1.1cqw; }
+  .stat {
+    display: flex;
+    align-items: baseline;
+    gap: .7em;
+  }
+  .stat__num {
+    font-family: var(--serif);
+    font-size: var(--t-jumbo);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent-2);
+  }
+  .stat__label {
+    font-size: var(--t-label);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    line-height: 1.25;
+    color: var(--ink-2);
+  }
+
+  /* ---- callout ----------------------------------------------------------
+     OFF by default in the sense that no other component implies it. On a
+     dense professional sheet (a CV) a boxed highlight is noise — hierarchy
+     should come from size and colour. Use it when one fact genuinely
+     outranks the rest of the sheet, and never twice on the same sheet. */
+  .callout {
+    border: 1px solid var(--rule-firm);
+    border-left: 3px solid var(--accent-2);
+    background: var(--accent-bg);
+    padding: 2.4cqw;
+  }
+  .callout--split {
+    display: grid;
+    grid-template-columns: var(--callout-aside-w, 21cqw) 1fr;
+    gap: 0 var(--gap-col);
+    align-items: center;
+  }
+
+  /* ---- fine print -------------------------------------------------------- */
+  .fine {
+    display: grid;
+    grid-template-columns: repeat(var(--fine-cols, 2), 1fr);
+    gap: 1.8cqw var(--gap-col);
+    border-top: 1px solid var(--rule);
+    padding-top: 2cqw;
+    font-size: var(--t-meta);
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  .fine h3 {
+    margin: 0 0 .35cqw;
+    font-size: inherit;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .fine p { margin: 0; }
+
+  /* ---- footer ------------------------------------------------------------ */
+  .footline {
+    padding-top: 1.2cqw;
+    border-top: 1px solid var(--rule);
+    font-size: var(--t-small);
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .footline b { color: var(--ink); font-weight: 600; }
+  .footline--split {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2cqw;
+  }
+
+  /* page number, on multi-sheet documents */
+  body { counter-reset: sheet; }
+  .sheet { counter-increment: sheet; }
+  .folio { flex: none; white-space: nowrap; color: var(--ink-3); font-size: var(--t-meta); }
+  .folio::after { content: counter(sheet); }
+
+  /* ---- modifiers ---------------------------------------------------------- */
+  /* a whole block, one notch quieter than the sheet's main matter */
+  .muted .entry__head h3,
+  .muted .entry__title { font-size: var(--t-dense); font-weight: 600; color: var(--ink-2); }
+  .muted .org { font-weight: 400; color: var(--ink-3); }
+  .muted p {
+    margin: .5cqw 0 0;
+    font-size: var(--t-small);
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
+  .muted p b { color: var(--ink-2); font-weight: 600; }
+
+  /* ---- inline atoms -------------------------------------------------------
+     The whole inline vocabulary. Adding a new separator or a new accent
+     colour to a sheet is nearly always a mistake — reach here first. */
+  .sep    { color: var(--rule-firm); padding: 0 .4em; }
+  .arr    { color: var(--rule-firm); padding: 0 .35em; }
+  .gloss  { font-size: var(--t-small); color: var(--ink-3); }
+  .dim    { color: var(--ink-2); }
+  .faint  { color: var(--ink-3); }
+  .accent { color: var(--accent-2); font-weight: 700; }
+  .nb     { white-space: nowrap; }
+  .roman  { font-family: var(--serif); }
+  /* stressed syllable — the offset clears the ogonek on ą ę į ų */
+  .sheet u {
+    text-decoration-line: underline;
+    text-decoration-thickness: .07em;
+    text-underline-offset: .24em;
+  }
+}

@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kilmininkas · the Lithuanian genitive — A4 cheat sheet</title>
+<link rel="stylesheet" href="../css/sheet.css">
+<link rel="stylesheet" href="../css/theme/editorial.css">
+<style>
+/* ==========================================================================
+   Document layer. Everything here is either a scale number, a ladder number,
+   or a flourish that belongs to this sheet alone. No framework rule is
+   fought with !important — the doc layer simply outranks it.
+   ========================================================================== */
+@layer doc {
+  :root { --sheet-pad-y: 4.5%; --sheet-pad-x: 5.1%; }
+
+  .sheet {
+    /* a reference card runs on a flatter ladder than a narrative document */
+    --gap-section: calc(3cqw * var(--rhythm));
+    --gap-entry:   calc(3.9cqw * var(--rhythm));
+
+    --t-display-n: 5.8;
+    --t-title-n:   1.9;
+    --t-body-n:    1.85;
+    --t-small-n:   1.47;
+    --t-meta-n:    1.33;
+    --t-label-n:   1.22;
+    --band-tracking: .16em;
+  }
+
+  .mast { margin-bottom: 0; padding-bottom: 2cqw; }
+  .ask-q     { font-family: var(--serif); font-style: italic; font-size: 2.5cqw;
+               color: var(--accent-2); line-height: 1; }
+  .ask-q-sub { font-size: var(--t-small); color: var(--ink-3); margin-top: .6cqw; }
+
+  /* the examples column of a numbered entry */
+  .ex { font-family: var(--serif); font-size: var(--t-body); line-height: 1.5; }
+  .ex .gloss { margin-left: .35em; }
+
+  .gender-head { font-family: var(--serif); font-size: var(--t-title); margin: 0 0 .9cqw; }
+  .gender-head em { font-family: var(--sans); font-style: normal; font-size: var(--t-label);
+                    letter-spacing: .12em; text-transform: uppercase;
+                    color: var(--ink-3); margin-left: .6em; }
+
+  .how { font-size: var(--t-small); color: var(--ink-2); line-height: 1.55; margin: 0 0 1.1cqw; }
+  .how b { color: var(--ink); }
+  .chains { font-family: var(--serif); font-size: var(--t-small); color: var(--ink-2);
+            --gap-col-row: .3cqw; --gap-col: 2cqw; }
+  .chains b { color: var(--accent-2); font-weight: 700; }
+
+  .footline { padding-top: 1.1cqw; font-size: var(--t-small); }
+  .src { flex: none; white-space: nowrap; font-size: var(--t-title); text-align: right; }
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <p>Один лист A4. Печать: масштаб <kbd>100%</kbd>, поля <kbd>None</kbd>, фоновая графика включена.</p>
+  <button class="print-btn" type="button" onclick="window.print()">Печать</button>
+</div>
+
+<article class="sheet">
+<div class="flow">
+
+  <header class="mast">
+    <div>
+      <h1>Kilmininkas</h1>
+      <p class="sub">The genitive case</p>
+    </div>
+    <div class="mast__aside">
+      <div class="ask-q">Kieno? Ko?</div>
+      <div class="ask-q-sub">Whose? Of what?</div>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="band-label">When you need it <span>Kada vartojame</span></h2>
+    <div class="entries entries--ruled">
+
+      <div class="entry entry--split">
+        <div class="entry__num">1</div>
+        <div>
+          <div class="entry__title">Possession</div>
+          <div class="note">Priklausymas</div>
+        </div>
+        <div class="ex">
+          <span class="nb"><span class="accent">Jono</span> <span class="dim">mašina</span><span class="gloss">Jonas's car</span></span><span class="sep">·</span>
+          <span class="nb"><span class="accent">Lietuvos</span> <span class="dim">sostinė</span><span class="gloss">the capital of Lithuania</span></span><span class="sep">·</span>
+          <span class="nb">mano <span class="accent">draugo</span> <span class="dim">namas</span><span class="gloss">my friend's house</span></span>
+        </div>
+      </div>
+
+      <div class="entry entry--split">
+        <div class="entry__num">2</div>
+        <div>
+          <div class="entry__title">Negation</div>
+          <div class="note">Neiginys · Ką? → Ko?</div>
+        </div>
+        <div class="ex">
+          <span class="nb"><span class="dim">Aš turiu knygą</span> <span class="arr">→</span> Aš neturiu <span class="accent">knygos</span></span><span class="sep">·</span>
+          <span class="nb"><span class="dim">Čia yra vieta</span> <span class="arr">→</span> Čia nėra <span class="accent">vietos</span></span>
+        </div>
+      </div>
+
+      <div class="entry entry--split">
+        <div class="entry__num">3</div>
+        <div>
+          <div class="entry__title">Quantity and parts</div>
+          <div class="note">Kiekis</div>
+        </div>
+        <div class="ex">
+          <span class="nb">daug <span class="accent">vandens</span><span class="gloss">a lot of water</span></span><span class="sep">·</span>
+          <span class="nb">stiklinė <span class="accent">pieno</span><span class="gloss">a glass of milk</span></span><span class="sep">·</span>
+          <span class="nb">kilogramas <span class="accent">obuolių</span><span class="gloss">a kilo of apples</span></span>
+          <div class="gloss" style="margin-top:.3cqw"><i>1 euras</i> · <i>2–9 eurai</i> · <i>10–19, 20, 30, 100</i> <span class="arr">→</span> <span class="accent">eurų</span></div>
+        </div>
+      </div>
+
+      <div class="entry entry--split">
+        <div class="entry__num">4</div>
+        <div>
+          <div class="entry__title">Wanting and seeking</div>
+          <div class="note">Veiksmažodžiai</div>
+        </div>
+        <div class="ex">
+          <span class="nb">norėti: noriu <span class="accent">kavos</span></span><span class="sep">·</span>
+          <span class="nb">ieškoti: ieškau <span class="accent">darbo</span></span><span class="sep">·</span>
+          <span class="nb">laukti: laukiu <span class="accent">autobuso</span></span><span class="sep">·</span>
+          <span class="nb">prašyti: prašau <span class="accent">pagalbos</span></span><span class="sep">·</span>
+          <span class="nb">bijoti: bijau <span class="accent">šuns</span></span>
+        </div>
+      </div>
+
+      <div class="entry entry--split">
+        <div class="entry__num">5</div>
+        <div>
+          <div class="entry__title">After prepositions</div>
+          <div class="note">Prielinksniai</div>
+        </div>
+        <div class="ex">
+          <span class="nb">be <span class="accent">cukraus</span><span class="gloss">without</span></span><span class="sep">·</span>
+          <span class="nb">iki <span class="accent">susitikimo</span><span class="gloss">until</span></span><span class="sep">·</span>
+          <span class="nb">nuo <span class="accent">ryto</span><span class="gloss">since</span></span><span class="sep">·</span>
+          <span class="nb">prie <span class="accent">namo</span><span class="gloss">by</span></span><span class="sep">·</span>
+          <span class="nb">po <span class="accent">darbo</span><span class="gloss">after</span></span><span class="sep">·</span>
+          <span class="nb">iš <span class="accent">Vilniaus</span><span class="gloss">from</span></span><span class="sep">·</span>
+          <span class="nb">dėl <span class="accent">ligos</span><span class="gloss">because of</span></span><span class="sep">·</span>
+          <span class="nb">ant <span class="accent">stalo</span><span class="gloss">on</span></span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2 class="band-label">Endings · singular <span>Kilmininkas vienaskaita · <u>underline</u> = stress</span></h2>
+    <div class="cols cols--ruled">
+      <div>
+        <h3 class="gender-head">Vyriškoji giminė <em>masculine</em></h3>
+        <div class="pairs--transform">
+          <div class="pair"><div class="pair__from">-as</div><div class="pair__mark">→</div><div class="pair__to">-o</div><div class="pair__eg">v<u>ai</u>kas → <b>v<u>ai</u>ko</b> · n<u>a</u>mas → <b>n<u>a</u>mo</b></div></div>
+          <div class="pair"><div class="pair__from">-is</div><div class="pair__mark">→</div><div class="pair__to">-io</div><div class="pair__eg">br<u>o</u>lis → <b>br<u>o</u>lio</b> · dv<u>i</u>ratis → <b>dv<u>i</u>račio</b></div></div>
+          <div class="pair"><div class="pair__from">-ys</div><div class="pair__mark">→</div><div class="pair__to">-io</div><div class="pair__eg">mokin<u>y</u>s → <b>m<u>o</u>kinio</b></div></div>
+          <div class="pair"><div class="pair__from">-us</div><div class="pair__mark">→</div><div class="pair__to">-aus</div><div class="pair__eg">al<u>u</u>s → <b>al<u>au</u>s</b> · sūn<u>u</u>s → <b>sūn<u>au</u>s</b></div></div>
+          <div class="pair"><div class="pair__from">-ius</div><div class="pair__mark">→</div><div class="pair__to">-iaus</div><div class="pair__eg">kar<u>a</u>lius → <b>kar<u>a</u>liaus</b></div></div>
+        </div>
+      </div>
+      <div>
+        <h3 class="gender-head">Moteriškoji giminė <em>feminine</em></h3>
+        <div class="pairs--transform">
+          <div class="pair"><div class="pair__from">-a</div><div class="pair__mark">→</div><div class="pair__to">-os</div><div class="pair__eg">kav<u>a</u> → <b>kav<u>o</u>s</b> · Lietuv<u>a</u> → <b>Lietuv<u>o</u>s</b></div></div>
+          <div class="pair"><div class="pair__from">-ė</div><div class="pair__mark">→</div><div class="pair__to">-ės</div><div class="pair__eg">kat<u>ė</u> → <b>kat<u>ė</u>s</b> · gėl<u>ė</u> → <b>gėl<u>ė</u>s</b></div></div>
+          <div class="pair"><div class="pair__from">-is</div><div class="pair__mark">→</div><div class="pair__to">-ies</div><div class="pair__eg">žuv<u>i</u>s → <b>žuv<u>ie</u>s</b> · nakt<u>i</u>s → <b>nakt<u>ie</u>s</b></div></div>
+        </div>
+        <p class="gloss" style="margin:1.1cqw 0 0; line-height:1.45">Go by the last letter of the dictionary form — the <i>Vardininkas</i>. The stress can jump: <i>mokin<u>y</u>s → m<u>o</u>kinio</i>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="band-label">Plural — one ending for everything <span>Kilmininkas daugiskaita</span></h2>
+    <div class="callout callout--split">
+      <div class="stats">
+        <div class="stat"><span class="stat__num">-ų</span><span class="stat__label">usually</span></div>
+        <div class="stat"><span class="stat__num">-ių</span><span class="stat__label">after a<br>soft stem</span></div>
+      </div>
+      <div>
+        <p class="how">Go through the genitive singular: <span class="nb">ends in <b>-io, -iaus, -ės</b> → <b>-ių</b></span> · <span class="nb">anything else → <b>-ų</b>.</span></p>
+        <div class="cols chains">
+          <div>v<u>ai</u>kas → v<u>ai</u>ko → <b>vaik<u>ų</u></b></div>
+          <div>kav<u>a</u> → kav<u>o</u>s → <b>kav<u>ų</u></b></div>
+          <div>br<u>o</u>lis → br<u>o</u>lio → <b>br<u>o</u>lių</b></div>
+          <div>gėl<u>ė</u> → gėl<u>ė</u>s → <b>gėli<u>ų</u></b></div>
+          <div>al<u>u</u>s → al<u>au</u>s → <b>al<u>ų</u></b></div>
+          <div>žuv<u>i</u>s → žuv<u>ie</u>s → <b>žuv<u>ų</u></b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fine">
+    <div>
+      <h3>Masculine <i>-is</i> can also give <i>-ies</i></h3>
+      <p><i>dant<u>i</u>s</i> → <b>dant<u>ie</u>s</b> (tooth) · <i>vag<u>i</u>s</i> → <b>vag<u>ie</u>s</b> (thief). Rare — the main route stays <b>-io</b>.</p>
+    </div>
+    <div>
+      <h3><i>t, d → č, dž</i> before <i>-ių</i></h3>
+      <p><i>kat<u>ė</u></i> → <b>kači<u>ų</u></b> · <i>m<u>e</u>dis</i> → <b>m<u>e</u>džių</b> · <i>sv<u>e</u>čias</i> → <b>sv<u>e</u>čio</b>.</p>
+    </div>
+    <div>
+      <h3>Learn these as they come</h3>
+      <p><i>m<u>o</u>teris</i> → <b>m<u>o</u>ters</b> · <i>dukt<u>ė</u></i> → <b>dukt<u>e</u>rs</b> · <i>ses<u>uo</u></i> → <b>ses<u>e</u>rs</b> · <i>vand<u>uo</u></i> → <b>vand<u>e</u>ns</b> · <i>akm<u>uo</u></i> → <b>akm<u>e</u>ns</b> · <i>š<u>uo</u></i> → <b>š<u>u</u>ns</b>.</p>
+    </div>
+    <div>
+      <h3>Watch out for <i>po</i></h3>
+      <p><i>po darbo</i> — after work, genitive. <i>po stalu</i> — under the table, instrumental.</p>
+    </div>
+  </section>
+
+  <div class="footline footline--split">
+    <div><b>Self-check.</b> Possession? Negation? Quantity? Wanting or seeking? A preposition? — one yes is enough</div>
+    <div class="src"><span class="arr">→</span> <span class="accent roman">Kilmininkas</span></div>
+  </div>
+
+</div>
+</article>
+
+<script src="../js/fit.js"></script>
+</body>
+</html>
