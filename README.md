@@ -37,12 +37,12 @@ cp A4print/examples/cv.html my-sheet.html
 ```
 
 Optional: install [poppler](https://poppler.freedesktop.org/) (`brew install poppler`) so
-the checker can render the printed page and spot widowed lines.
+the checker can also spot widowed lines.
 
 ## Use it
 
-Just ask. The skill handles the layout, checks that the result fits, and shows you the
-printed page.
+Just ask. The skill handles the layout and verifies the result — that it fits the page,
+fills it, and has none of the dozen defects that only show up once it is printed.
 
 > Make me an A4 cheat sheet on German separable verbs — the rule, the common prefixes,
 > and a dozen examples with the verb in both positions.
@@ -75,18 +75,24 @@ $ ./bin/fit-check.sh examples/cv.html
   fill      0.977
   verdict   ok
   widows    none
-  png       …/check.png  (printed page)
+  findings  0
+  pdf       …/check.pdf
 
-  OK    fits, and fills the sheet.
+  OK    fits, fills the sheet, and nothing else measured wrong.
 ```
 
 - **pages must equal sheets** — otherwise something spilled over.
 - **fill** is how much of the page the content uses. Below 0.90 the sheet looks
   unfinished; above 1.00 it overflowed.
-- **png** is the actual printed page, so you can look rather than guess.
+- **findings** is everything else, measured rather than eyeballed — ink outside the
+  margin, blocks overlapping, a hole in the middle, a heading sitting closer to the next
+  entry than to its own bullets, a colour the theme never defined. Each one names the
+  element and the millimetres, and anything marked FAIL makes the check exit non-zero.
+- **pdf** is the actual printed page, for you to look at.
 
 On screen there's a panel next to the Print button doing the same thing live: fill
-percentage, sliders for type size and density, an autofit button, and add/remove sheet.
+percentage, the same list of findings, sliders for type size and density, an autofit
+button, and add/remove sheet.
 
 ![The fitting panel: fill percentage, type and density sliders, autofit, add and remove sheet](docs/panel.png)
 

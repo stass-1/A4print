@@ -21,17 +21,51 @@ rather than forcing a report into this.
 
 ## Non-negotiable: run the fit check
 
-A sheet that overflows loses its last line; a sheet that is 60% full looks unfinished.
-Neither is visible from the markup, so **never** declare a sheet done without:
+A sheet that overflows loses its last line; a sheet that is 60% full looks unfinished;
+a heading that drifted closer to the next entry than to its own bullets prints the wrong
+grouping. None of it is visible from the markup, so **never** declare a sheet done
+without:
 
 ```bash
 ./bin/fit-check.sh path/to/sheet.html
 ```
 
-It reports `sheets` / `pages` / `fill` / `verdict` / `widows`, and writes a PNG of the
-**printed page** — read that image, do not assume. Requirements: `pages` must equal
-`sheets`, `verdict` must be `ok`. A `fill` under 0.90 means a hole at the bottom; fix it
-by adding content or by tightening the format, not by ignoring it.
+It reports `sheets` / `pages` / `fill` / `verdict` / `widows`, then every other defect it
+could measure, each one naming the element and the amount. Requirements: `pages` must
+equal `sheets`, `verdict` must be `ok`, and **no finding may be FAIL** — the script exits
+non-zero until all three hold. A `fill` under 0.90 means a hole at the bottom; fix it by
+adding content or by tightening the format, not by ignoring it — unless the sheet carries
+a `.spring--grow`, which is the markup saying where the slack belongs. A certificate or a
+title page is *supposed* to be mostly air, so on those sheets `fill` is reported and no
+longer judged.
+
+FAIL — unambiguous, always wrong:
+
+| Finding | Means |
+|---|---|
+| `escape` | ink outside the sheet margin: an unbreakable URL, an oversized image |
+| `overlap` | two blocks printing on top of each other |
+| `scale-floor` | `--t-scale` pushed below the 0.90 floor |
+
+WARN — judgement calls, and overruling one needs a reason:
+
+| Finding | Means |
+|---|---|
+| `hole` | a gap in the middle far larger than the rest; mark it `.spring` or close it |
+| `ladder` | an entry heading further from its own body than from the next entry |
+| `ladder-flat` | entry gaps have caught up with section gaps; the ladder is mush |
+| `orphan` | the sheet ends on a heading with nothing under it |
+| `cols` | one column of a `.cols` ends far above its neighbour |
+| `ink` | a colour that is not one of the theme tokens |
+| `box` | a block enclosed on three sides or more, or tinted |
+| `callout` | more than one on a sheet |
+| `separator` | `\|` or `•` used alongside the sheet separator `·` |
+
+**Do not open the page to look at it.** Everything the check can see is already in the
+numbers, and everything it cannot see would not survive a 96 dpi render either — body
+type on this sheet is nine pixels tall in a rendered A4, which is below the resolution
+where a gap or a step of grey can be judged at all. `check.pdf` is written for the person
+who asked for the sheet, not for you.
 
 ## Start from this skeleton
 
@@ -116,6 +150,10 @@ Do not distribute leftover space evenly; that destroys the ladder. Mark the one 
 places where the design permits stretch with `.spring` (or `.spring--grow`); `.footline`
 is a spring already. Everything else keeps its fixed rhythm.
 
+`.spring--grow` doubles as the declaration that a sparse sheet is meant to be sparse: it
+is what exempts a certificate from the underfull warning. Do not scatter it to silence
+that warning on a sheet that is merely unfinished.
+
 ## Two fitting strategies — pick one deliberately
 
 - **`fit: scale`** — change the type scale and rhythm, leave the layout alone. For sheets
@@ -134,11 +172,17 @@ no auto-flow, deliberately: on a designed sheet you decide what lands on page tw
 
 `js/fit.js` renders a screen-only panel: live fill percentage per sheet (green fits,
 amber hole, red overflow), sliders for scale and density, autofit, add/remove sheet. It
-also stamps `data-fill` / `data-sheets` / `data-fit` on `<html>`, which is how
-`fit-check.sh` reads the numbers back without a browser driver.
+also lists the same findings the terminal gets, so the panel and the check never
+disagree about whether a sheet is finished.
+
+It stamps `data-fill` / `data-sheets` / `data-fit` / `data-audit` on `<html>`, and — when
+the URL carries `?a4fit=1` — the numbers and the findings into `document.title`, which
+Chrome copies into the metadata of `--print-to-pdf` output. That is how `fit-check.sh`
+gets the page and everything measured on it out of a single headless launch, with no
+browser driver.
 
 API: `A4.measure(sheet)` `A4.measureAll()` `A4.autofit(sheet)` `A4.autofitAll()`
-`A4.report()` `A4.addSheet()` `A4.removeSheet()`.
+`A4.audit(sheet, i)` `A4.auditAll()` `A4.report()` `A4.addSheet()` `A4.removeSheet()`.
 
 ## Doctrine — the things that ruin a sheet
 
