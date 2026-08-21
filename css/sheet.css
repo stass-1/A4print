@@ -34,8 +34,14 @@
   :root {
     --sheet-w: 210;
     --sheet-h: 297;
-    --sheet-pad-y: 5%;
-    --sheet-pad-x: 5.4%;
+    /* Percent of the sheet WIDTH, as plain numbers. They cannot be written
+       as percentages: a percentage padding resolves against the containing
+       block — the body — and not against the sheet, so the margins tracked
+       the browser window while print used the page. A 1400px window put the
+       text column at 170.7mm where the printed one is 187.2mm, which moved
+       every line break, every gap, and the fit meter with them. */
+    --sheet-pad-y: 5;
+    --sheet-pad-x: 5.4;
   }
 
   @page { size: A4 portrait; margin: 0; }
@@ -64,7 +70,8 @@
        to 0, the page stays exactly one page and the excess spills over the
        paper edge, where both a person and the fit meter can see it. */
     min-height: 0;
-    padding: var(--sheet-pad-y) var(--sheet-pad-x);
+    padding: calc(var(--sheet-pad-y) * var(--sheet-w) * .01mm)
+             calc(var(--sheet-pad-x) * var(--sheet-w) * .01mm);
     background: var(--paper);
     color: var(--ink);
     box-shadow: 0 1px 2px rgba(0,0,0,.16), 0 10px 30px rgba(0,0,0,.13);
