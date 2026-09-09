@@ -72,11 +72,11 @@ $ ./bin/fit-check.sh examples/cv.html
   cv.html
   sheets    1
   pages     1
-  fill      0.977
+  fill      0.985
   verdict   ok
   widows    none
   findings  0
-  pdf       …/check.pdf
+  pdf       examples/.fitcheck/check.pdf
 
   OK    fits, fills the sheet, and nothing else measured wrong.
 ```
@@ -129,15 +129,26 @@ The catch is that a wall sheet is a budget, not a bigger version of a desk sheet
 the desk sheet holds thirty entries, the wall holds eight — so most of the content has to
 go, and what remains is split across several sheets that tile into a poster.
 
-Say how far away you'll read it and the check answers with what the type actually
-achieves:
+<table>
+<tr>
+<td width="50%"><img src="docs/wall-1.png" alt="A wall sheet: eight Lithuanian prepositions with their meanings, set to be read from two metres"></td>
+<td width="50%"><img src="docs/wall-2.png" alt="The second wall sheet of the same pair"></td>
+</tr>
+</table>
+
+<sub>`examples/wall.html`, both sheets. Together they tile into one poster.</sub>
+
+Say how far away you'll read it — `--wall-distance` in metres — and the check answers
+with what the type actually achieves. Ask these two sheets for three metres and it says
+they don't get there:
 
 ```
   reach     3.0,2.1 m  (cap height per sheet, at 4mm per metre)
 
   WARN  legibility   sheet 2
-                     the smallest term is 7.1mm of cap height, which carries
-                     1.8m — short of the 3m declared in --wall-distance.
+                     the smallest term is 8.3mm of cap height, which carries 2.1m
+                     — short of the 3m declared in --wall-distance. Cut terms until
+                     the rest can be set larger, or split the sheet
 ```
 
 Nobody can judge that from the markup, which is the reason it is measured. Cap height —
@@ -150,6 +161,17 @@ cheat sheet. `examples/wall.html` — the same grammar as a pair of wall sheets.
 them they use every component in the library. The CV's person,
 employers and projects are invented; it's there to show the layout at a realistic text
 density.
+
+Every picture above is a render of one of those examples, so none of them can drift away
+from what the repository actually produces:
+
+```
+$ ./bin/docs-shots.sh --check     # have the examples changed since?
+$ ./bin/docs-shots.sh             # redraw docs/*.png from them
+```
+
+The sheets come out of the print PDF at 150dpi — the printed artefact, not a photo of a
+browser. Needs Chrome and poppler.
 
 ## Licence
 
