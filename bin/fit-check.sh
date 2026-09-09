@@ -15,6 +15,7 @@
 #   fill      — how full each sheet is, 100% == exactly to the bottom edge
 #   verdict   — ok / under / over
 #   widows    — last lines that ended up as a single short word
+#   reach     — wall mode only: how far away each sheet can actually be read
 #   findings  — everything else fit.js measured, located and named
 # and writes check.pdf, which is the printed page itself — open that to look
 # at the design.
@@ -64,27 +65,30 @@ except OSError:
 
 # fit.js writes its report into document.title, and Chrome carries it
 # verbatim into the Info dictionary of the PDF.
-m = re.search(rb'A4FIT sheets=(\d+) fill=([\d.,]*) fit=(\w+) audit=(\S*) A4END', d)
+m = re.search(rb'A4FIT sheets=(\d+) fill=([\d.,]*) fit=(\w+)'
+              rb'(?: reach=([\d.,-]*))? audit=(\S*) A4END', d)
 if m:
     sheets, fill, verdict = (g.decode() for g in m.group(1, 2, 3))
+    reach = (m.group(4) or b'-').decode()
     try:
-        found = json.loads(urllib.parse.unquote(m.group(4).decode()))
+        found = json.loads(urllib.parse.unquote(m.group(5).decode()))
     except ValueError:
         found = []
 else:
-    sheets, fill, verdict, found = '-', '-', '-', []
+    sheets, fill, verdict, reach, found = '-', '-', '-', '-', []
 
 p = (re.search(rb'/Type\s*/Pages\b[^>]*?/Count\s+(\d+)', d, re.S)
      or re.search(rb'/Count\s+(\d+)', d, re.S))
 
-print(sheets, fill or '-', verdict, p.group(1).decode() if p else '-')
+print(sheets, fill or '-', verdict, p.group(1).decode() if p else '-',
+      reach or '-')
 for f in found:
     print('%s\t%s\t%s\t%s' % (f.get('level', 'warn'), f.get('code', '?'),
                               f.get('where', '?'), f.get('detail', '')))
 PY
 )
 
-read -r SHEETS FILL VERDICT PAGES <<<"$(printf '%s\n' "$REPORT" | head -1)"
+read -r SHEETS FILL VERDICT PAGES REACH <<<"$(printf '%s\n' "$REPORT" | head -1)"
 FINDINGS=$(printf '%s\n' "$REPORT" | tail -n +2)
 NFOUND=$(printf '%s' "$FINDINGS" | grep -c . )
 
@@ -113,6 +117,11 @@ printf '  %-9s %s\n' "pages"    "$PAGES"
 printf '  %-9s %s\n' "fill"     "$FILL"
 printf '  %-9s %s\n' "verdict"  "$VERDICT"
 printf '  %-9s %s\n' "widows"   "$WIDOWS"
+# Only a sheet built from wall components reports a reach; on every other
+# document the row would be a column of dashes saying nothing.
+if [ -n "${REACH:-}" ] && printf '%s' "$REACH" | grep -q '[0-9]'; then
+  printf '  %-9s %s m  (cap height per sheet, at 4mm per metre)\n' "reach" "$REACH"
+fi
 printf '  %-9s %s\n' "findings" "$NFOUND"
 printf '  %-9s %s\n' "pdf"      "$PDF"
 echo

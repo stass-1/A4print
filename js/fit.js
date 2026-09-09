@@ -22,6 +22,8 @@
      autofit(sheet)        → {ok, scale, fill, reason}
      autofitAll()          → array of results
      audit(sheet, i)       → [{level, code, where, detail}] — see Audit below
+     reach(sheet)          → {term, gloss, reach, want} in mm and metres, or
+                             null on a sheet built without wall components
      auditAll()            → the same across every sheet, failures first
      report()              → {fills, sheets, verdict, findings}, stamps <html>
      addSheet() / removeSheet()
@@ -37,6 +39,15 @@
   var TARGET    = 0.985;  /* aim to fill the sheet to just under the edge */
   var UNDERFULL = 0.90;   /* below this the sheet reads as having a hole   */
   var STEPS     = 18;
+
+  /* Wall mode. Cap height, not font size, is what a reader resolves across a
+     room, and for the text faces the themes use it runs at roughly 0.70 em.
+     The legibility threshold below is the 1:250 ratio long used for signage —
+     4mm of cap height buys a metre of distance. It is the threshold of being
+     readable at all; 1:200 (5mm per metre) is what reads comfortably, which
+     is why `reach` is reported as a number rather than as a pass mark. */
+  var CAP_RATIO  = 0.70;
+  var MM_PER_M   = 4;
 
   function sheets() {
     return Array.prototype.slice.call(document.querySelectorAll('.sheet'));
@@ -213,6 +224,47 @@
     return set;
   }
 
+  /* ---- how far away this sheet can be read ------------------------------
+     The one property of a wall sheet nobody can judge from the markup, and
+     the one it exists for. Reports the weakest term on the sheet, not the
+     average: a reader walks up to the word they cannot read, and the sheet
+     is only as good as that one.
+
+     Returns null on a sheet that carries no wall components, so a desk sheet
+     is never told how it would perform on a wall it was never meant for. */
+  function reachOf(sheet) {
+    var flow = flowOf(sheet);
+    var terms = flow.querySelectorAll('.w > b, .wline > b');
+    if (!terms.length) return null;
+
+    var cs = getComputedStyle(sheet);
+    var box = sheet.getBoundingClientRect();
+    var wmm = parseFloat(cs.getPropertyValue('--sheet-w')) || 210;
+    if (!box.width) return null;
+    var pxmm = box.width / wmm;
+
+    function capOf(list) {
+      var min = Infinity;
+      Array.prototype.forEach.call(list, function (el) {
+        if (!shown(el)) return;
+        var px = parseFloat(getComputedStyle(el).fontSize);
+        if (px) min = Math.min(min, px / pxmm * CAP_RATIO);
+      });
+      return min === Infinity ? null : min;
+    }
+
+    var term  = capOf(terms);
+    var gloss = capOf(flow.querySelectorAll('.w > span, .wline > span'));
+    if (term === null) return null;
+
+    return {
+      term:  term,
+      gloss: gloss,
+      reach: term / MM_PER_M,
+      want:  parseFloat(cs.getPropertyValue('--wall-distance')) || 0
+    };
+  }
+
   function auditSheet(sheet, index) {
     var found = [];
     var flow = flowOf(sheet);
@@ -264,7 +316,14 @@
        Both come out of the same walk: the vertical gap between the ink of
        consecutive top-level blocks. Negative is an overlap; far above the
        median is a hole that a person would have spotted in the picture. */
-    var tops = kids(flow);
+    /* A spring is collapsed slack, not a block. Left in the walk it splits
+       one real gap into two halves measured to a zero-height spacer, which
+       both invents holes and hides the section adjacency the ladder check
+       below depends on. A sheet that separates its sections with springs is
+       exactly the sheet that needs those two checks to work. */
+    var tops = kids(flow).filter(function (el) {
+      return !el.matches('.spring, .spring--grow');
+    });
     var gaps = [], pair = [], sectionGaps = [];
     for (var i = 0; i < tops.length - 1; i++) {
       /* Collision is a question about boxes. Ink is not the test for it:
@@ -437,6 +496,24 @@
       }
     });
 
+    /* ---- 7. legibility at the declared distance (wall mode) ------------
+       Only a sheet built from wall components has declared it is read from
+       across a room, so only that sheet is held to a distance. */
+    var reach = reachOf(sheet);
+    if (reach && reach.want && reach.reach < reach.want - 0.05) {
+      add('warn', 'legibility', 'sheet ' + (index + 1),
+          'the smallest term is ' + reach.term.toFixed(1) +
+          'mm of cap height, which carries ' + reach.reach.toFixed(1) +
+          'm — short of the ' + reach.want + 'm declared in --wall-distance. ' +
+          'Cut terms until the rest can be set larger, or split the sheet');
+    }
+    if (reach && reach.gloss !== null && reach.gloss < reach.term * 0.42) {
+      add('warn', 'gloss', 'sheet ' + (index + 1),
+          'the gloss is ' + reach.gloss.toFixed(1) + 'mm against a ' +
+          reach.term.toFixed(1) + 'mm term — it reads as a caption, ' +
+          'and a term nobody can read the meaning of is decoration');
+    }
+
     var scale = parseFloat(cs.getPropertyValue('--t-scale'));
     if (scale && scale < MIN_SCALE - 0.001) {
       add('fail', 'scale-floor', 'sheet ' + (index + 1),
@@ -496,12 +573,21 @@
      `--dump-dom` the data-* attributes above carry the same values; the title is
      only stamped when the URL asks for it, so a sheet opened in a real browser
      keeps its own title in the tab. */
-  function stampTitle(fills, verdict, found) {
+  function stampTitle(fills, verdict, found, reach) {
     if (!/[?&]a4fit\b/.test(location.search)) return;
     document.title = 'A4FIT sheets=' + fills.length +
       ' fill=' + fills.map(function (f) { return f.toFixed(3); }).join(',') +
       ' fit=' + verdict +
+      ' reach=' + reach +
       ' audit=' + pack(found) + ' A4END';
+  }
+
+  /* Per sheet, in metres; "-" for a sheet with no wall components. */
+  function reachAll() {
+    return sheets().map(function (s) {
+      var r = reachOf(s);
+      return r ? r.reach.toFixed(1) : '-';
+    }).join(',');
   }
 
   /* The findings carry element text, which on most sheets is not ASCII, and
@@ -526,10 +612,13 @@
     root.setAttribute('data-sheets', String(fills.length));
     root.setAttribute('data-fit', verdict);
     root.setAttribute('data-audit', String(found.length));
-    stampTitle(fills, verdict, found);
+    var reach = reachAll();
+    root.setAttribute('data-reach', reach);
+    stampTitle(fills, verdict, found, reach);
     render(fills, verdict, found);
     return {
-      fills: fills, sheets: fills.length, verdict: verdict, findings: found
+      fills: fills, sheets: fills.length, verdict: verdict,
+      findings: found, reach: reach
     };
   }
 
@@ -753,7 +842,7 @@
   var api = {
     measure: measure, measureAll: measureAll,
     autofit: autofit, autofitAll: autofitAll,
-    audit: auditSheet, auditAll: auditAll,
+    audit: auditSheet, auditAll: auditAll, reach: reachOf,
     report: report, addSheet: addSheet, removeSheet: removeSheet,
     MIN_SCALE: MIN_SCALE, MAX_SCALE: MAX_SCALE
   };

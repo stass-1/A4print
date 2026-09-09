@@ -1,6 +1,6 @@
 ---
 name: a4print
-description: Build a print-ready designed sheet — a one-page cheat sheet, CV, one-pager, programme, certificate, poster, menu or handout — as HTML that looks identical on screen and on paper. Use whenever the deliverable is meant to be printed or exported to PDF at a fixed page size, or when asked for "a one-pager", "an A4 sheet", "something to print", "a PDF via print". Includes a component library, two themes, and a headless fit-check that reports whether the content actually fits the page and fills it.
+description: Build a print-ready designed sheet — a one-page cheat sheet, CV, one-pager, programme, certificate, poster, menu or handout — as HTML that looks identical on screen and on paper. Use whenever the deliverable is meant to be printed or exported to PDF at a fixed page size, or when asked for "a one-pager", "an A4 sheet", "something to print", "a PDF via print". Also builds wall sheets — a poster read from across a room, where the check reports how far away the type can actually be read. Includes a component library, two themes, and a headless fit-check that reports whether the content actually fits the page and fills it.
 ---
 
 # A4print — designed sheets that fit
@@ -30,8 +30,9 @@ without:
 ./bin/fit-check.sh path/to/sheet.html
 ```
 
-It reports `sheets` / `pages` / `fill` / `verdict` / `widows`, then every other defect it
-could measure, each one naming the element and the amount. Requirements: `pages` must
+It reports `sheets` / `pages` / `fill` / `verdict` / `widows` — plus `reach` on a wall
+sheet — then every other defect it could measure, each one naming the element and the
+amount. Requirements: `pages` must
 equal `sheets`, `verdict` must be `ok`, and **no finding may be FAIL** — the script exits
 non-zero until all three hold. A `fill` under 0.90 means a hole at the bottom; fix it by
 adding content or by tightening the format, not by ignoring it — unless the sheet carries
@@ -60,6 +61,8 @@ WARN — judgement calls, and overruling one needs a reason:
 | `box` | a block enclosed on three sides or more, or tinted |
 | `callout` | more than one on a sheet |
 | `separator` | `\|` or `•` used alongside the sheet separator `·` |
+| `legibility` | wall mode: the type does not carry the declared `--wall-distance` |
+| `gloss` | wall mode: the gloss has shrunk to a caption beside its term |
 
 **Do not open the page to look at it.** Everything the check can see is already in the
 numbers, and everything it cannot see would not survive a 96 dpi render either — body
@@ -122,6 +125,8 @@ material). Formats: A4 by default; add `css/format/letter.css`, `a5.css`, `a3.cs
 | `.fine` | petit, multi-column |
 | `.footline` `.footline--split` `.folio` | bottom line; springs to the foot of the sheet |
 | `.muted` | a whole block one notch quieter |
+| `.wall` / `.w` | wall mode: a grid of terms, each `<em>` label `<b>` term `<span>` gloss `<i>` example |
+| `.wline` | wall mode: the same four parts along one line, for contrasting conditions |
 
 Inline atoms — reach here before inventing anything:
 `.sep` (·) `.arr` (→) `.gloss` `.dim` `.faint` `.accent` `.nb` `.roman` `u` `kbd`
@@ -161,6 +166,66 @@ that warning on a sheet that is merely unfinished.
 - **`fit: reflow`** — change column counts, regroup, split across sheets. For sheets whose
   content you are free to recut. Cheat sheets, reference cards.
 
+## Wall mode — a sheet read from across the room
+
+```html
+<link rel="stylesheet" href="css/sheet.css">
+<link rel="stylesheet" href="css/format/a4-landscape.css">
+<link rel="stylesheet" href="css/mode/wall.css">
+<link rel="stylesheet" href="css/theme/editorial.css">
+```
+
+A desk sheet and a wall sheet are the same paper and opposite problems. At 40cm a sheet
+carries thirty entries; at three metres the type is eight times larger and it carries
+eight. **The mode is a budget, not a skin.** Asked to make an existing sheet bigger, do
+not scale it — recut the content, throw most of it out, and split what remains across
+several sheets. Landscape is the usual format: a term sits beside its gloss better than
+under it, and 297mm of width is what makes two or three columns of large type possible.
+
+Markup is a grid of terms, each with up to four parts, always these elements:
+
+```html
+<div class="wall" style="--wall-rows:4">
+  <div class="w"><em>Kilmininkas</em><b>be</b><span>without</span><i>be cukraus</i></div>
+  …
+</div>
+```
+
+`--wall-rows` sets the rows; columns follow from how many terms there are, filling
+column-wise. **Make the grid divide exactly.** A grid of 12 slots holding 11 terms prints
+as a hole in the bottom right, and on a wall a hole is the first thing seen.
+
+`.wline` is the same four parts along one line, for a row that contrasts conditions
+rather than listing terms — one preposition under two cases, a form with its meaning and
+its example.
+
+### The distance is a number, and the check reports it
+
+`--wall-distance`, in metres, is the design intent; put it on `:root` or on one `.sheet`.
+fit.js measures the cap height of the smallest term and reports `reach` — how far away
+the sheet can actually be read — warning when it falls short of what was declared.
+
+Cap height, not font size, is what a reader resolves across a room; it runs at roughly
+0.70em for the faces the themes use. `reach` is `cap ÷ 4mm` — the 1:250 ratio long used
+for signage, which is the threshold of being readable at all. Comfortable reading wants
+about 1:200, so a sheet whose `reach` is 3.0m is comfortable at 2.4m.
+
+Do not tune a sheet until the number comes out right if the layout cannot support it.
+Three things on a `.wline` cannot be set as large as one term on its own, so such a sheet
+reads from about two metres — declare `--wall-distance: 2` on it and the check will hold
+it to the distance it was actually designed for.
+
+### What wall mode drops
+
+No rules over rows, no boxes, no petit, no footline. At this size type separates the rows
+on its own, and a hairline over every block prints a ladder of grey the eye reads before
+it reads the words. `.wall--ruled` exists for the rare list of near-identical short terms.
+Examples and fine print are a second layer for a reader who has walked up — put them on
+the desk sheet instead, and let the wall carry the term and its meaning.
+
+Slack goes into `.spring--grow` between the blocks, which is also what tells the check
+that a sparse wall sheet is meant to be sparse. `examples/wall.html` is a worked pair.
+
 ## More than one sheet
 
 Multiple sibling `.sheet` elements, each with its own `.flow`. Each stays a fixed page;
@@ -182,7 +247,8 @@ gets the page and everything measured on it out of a single headless launch, wit
 browser driver.
 
 API: `A4.measure(sheet)` `A4.measureAll()` `A4.autofit(sheet)` `A4.autofitAll()`
-`A4.audit(sheet, i)` `A4.auditAll()` `A4.report()` `A4.addSheet()` `A4.removeSheet()`.
+`A4.audit(sheet, i)` `A4.auditAll()` `A4.reach(sheet)` `A4.report()` `A4.addSheet()`
+`A4.removeSheet()`.
 
 ## Doctrine — the things that ruin a sheet
 

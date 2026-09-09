@@ -120,10 +120,34 @@ Everything else — colours, fonts, components — is documented in
 Themes: `resume` (quiet, single colour) and `editorial` (green and amber, for teaching
 material). Formats: A4, Letter, A5, A3, A4 landscape.
 
+## Something to hang on a wall
+
+Ask for a sheet to be read from across the room and you get `css/mode/wall.css`: a term
+and its meaning, set eight times larger than desk type, on A4 landscape.
+
+The catch is that a wall sheet is a budget, not a bigger version of a desk sheet. Where
+the desk sheet holds thirty entries, the wall holds eight — so most of the content has to
+go, and what remains is split across several sheets that tile into a poster.
+
+Say how far away you'll read it and the check answers with what the type actually
+achieves:
+
+```
+  reach     3.0,2.1 m  (cap height per sheet, at 4mm per metre)
+
+  WARN  legibility   sheet 2
+                     the smallest term is 7.1mm of cap height, which carries
+                     1.8m — short of the 3m declared in --wall-distance.
+```
+
+Nobody can judge that from the markup, which is the reason it is measured. Cap height —
+not font size — is what the eye resolves at distance, and 4mm of it buys a metre.
+
 ## Examples
 
 `examples/cv.html` — a one-page CV. `examples/cheatsheet.html` — a Lithuanian grammar
-cheat sheet. Between them they use every component in the library. The CV's person,
+cheat sheet. `examples/wall.html` — the same grammar as a pair of wall sheets. Between
+them they use every component in the library. The CV's person,
 employers and projects are invented; it's there to show the layout at a realistic text
 density.
 

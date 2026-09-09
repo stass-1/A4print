@@ -1,0 +1,218 @@
+/* ==========================================================================
+   Mode: wall — a sheet read from across the room
+   --------------------------------------------------------------------------
+   A desk sheet and a wall sheet are the same paper and opposite problems.
+   On a desk the reader's eye is 40cm away and the sheet may carry thirty
+   entries; on a wall the eye is three metres away, the type is eight times
+   larger, and the sheet carries eight. The mode is therefore not a skin over
+   the normal components — it is a different budget, and the only honest way
+   to spend it is to throw content out until what remains can be set large.
+
+   Load after sheet.css and after any format file:
+
+     <link rel="stylesheet" href="css/sheet.css">
+     <link rel="stylesheet" href="css/format/a4-landscape.css">
+     <link rel="stylesheet" href="css/mode/wall.css">
+     <link rel="stylesheet" href="css/theme/editorial.css">
+
+   Landscape is the usual format: a wall term sits beside its gloss better
+   than under it, and 297mm of width is what makes two or three columns of
+   large type possible at all.
+
+   --wall-distance declares, in metres, how far away the sheet is meant to be
+   read. fit.js measures what the type actually achieves and says so; it is
+   the one number nobody can eyeball from the markup, and it is the whole
+   reason this is a mode with a check rather than a stylesheet.
+   ========================================================================== */
+
+@layer a4.components {
+
+  :root {
+    --wall-distance: 3;     /* metres — design intent, audited by fit.js */
+    /* Percent of the sheet width as plain numbers, per sheet.css. Tighter
+       than a desk sheet's: on a wall the paper edge is the margin, and every
+       millimetre given back to the page is a millimetre of type. */
+    --sheet-pad-y: 4.4;
+    --sheet-pad-x: 4.4;
+  }
+
+  /* ---- the budget --------------------------------------------------------
+     Two more steps on the same ladder, in the same units, driven by the same
+     --t-scale, so autofit still owns the single multiplier. The term is the
+     word being learned; the gloss is what it means; the example is for the
+     reader who has walked up to the wall. */
+  .sheet {
+    --t-term-n:  6.4;
+    --t-gloss-n: 3.4;
+    --t-line-n:  4.4;
+    --t-eg-n:    2.8;
+
+    /* a wall sheet has three or four blocks, not a dozen: the ladder is
+       shorter and flatter than a desk sheet's */
+    --gap-section: calc(2.6cqw * var(--rhythm));
+
+    /* labels and secondary text step up — a band label read at two metres
+       cannot be set at the desk sheet's 1.2cqw */
+    --t-label-n: 1.45;
+    --t-small-n: 1.6;
+    --band-tracking: .2em;
+  }
+
+  /* The step is computed on the block as well as on the sheet. A custom
+     property substitutes where it is declared, so a --t-term-n set on one
+     .wall would otherwise change nothing — the sheet had already resolved
+     its own. Recomputing here lets one grid on the sheet run a size of its
+     own, written as a number, with --t-scale still the single multiplier. */
+  .sheet, .wall, .wline {
+    --t-term:  calc(var(--t-term-n)  * 1cqw * var(--t-scale));
+    --t-gloss: calc(var(--t-gloss-n) * 1cqw * var(--t-scale));
+    --t-line:  calc(var(--t-line-n)  * 1cqw * var(--t-scale));
+    --t-eg:    calc(var(--t-eg-n)    * 1cqw * var(--t-scale));
+  }
+
+  /* ---- masthead ----------------------------------------------------------
+     Compact by force. Every millimetre the mast takes is a millimetre off
+     the term size, and the title is the one thing on the sheet a reader can
+     already see from the doorway. */
+  .sheet .mast {
+    align-items: baseline;
+    padding-bottom: 1.1cqw;
+    margin-bottom: 0;
+  }
+  .sheet .mast h1 { line-height: 1; }
+  .sheet .mast .sub { margin: .35cqw 0 0; font-size: var(--t-small); }
+  .sheet .mast__aside { font-size: var(--t-small); line-height: 1.3; }
+
+  /* ---- the grid ----------------------------------------------------------
+     Column-wise fill: a list is read down a column and then across, the way
+     a printed table of terms is. Set --wall-rows; the columns follow from
+     how many items there are, and every column is the same width.
+
+     Leave no half-empty last column. A grid of 12 slots holding 11 terms
+     prints as a hole in the bottom right, and on a wall a hole is the first
+     thing seen. Recut the content to fill the grid, or change --wall-rows
+     until it divides. */
+  .wall {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(var(--wall-rows, 4), 1fr);
+    grid-auto-columns: 1fr;
+    column-gap: var(--wall-gap, 3.2cqw);
+  }
+
+  /* ---- one term ----------------------------------------------------------
+     Four optional parts, always in this order and always these elements:
+
+       <em>  a label above  — a case name, a category, a number
+       <b>   the term       — the thing being learned
+       <span> the gloss     — what it means
+       <i>   an example     — for the reader standing close
+
+     No rules, no boxes. At this size the type separates the rows on its own;
+     a hairline over every block prints a ladder of grey the eye reads before
+     it reads the words. .wall--ruled exists for the rare list of near
+     identical short terms, where the rows genuinely stop being countable. */
+  .w {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: .3cqw 0;
+  }
+  .w > em {
+    font-style: normal;
+    font-size: var(--t-label);
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .35cqw;
+  }
+  .w > b {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: var(--t-term);
+    line-height: 1;
+    letter-spacing: -.015em;
+    color: var(--ink);
+  }
+  .w > span {
+    font-size: var(--t-gloss);
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--accent-2);
+    margin-top: .55cqw;
+  }
+  .w > i {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: var(--t-eg);
+    line-height: 1.1;
+    color: var(--ink-2);
+    margin-top: .45cqw;
+  }
+
+  .wall--ruled > .w { border-top: 1px solid var(--rule); }
+
+  /* ---- one term, laid out along a line -----------------------------------
+     The same four parts side by side instead of stacked, for a row that
+     contrasts conditions rather than listing terms — a preposition under two
+     cases, a form and its meaning and its example. Full sheet width, so the
+     gloss has room to be a phrase.
+
+     Three things on one line cannot be set as large as one thing on its own,
+     so a .wline sheet reads from roughly two metres, not three. That is a
+     property of the component, not a fault to be tuned away: declare it,
+     with `style="--wall-distance:2"` on the sheet, and fit.js will hold the
+     sheet to the distance it was actually designed for. */
+  .wline {
+    display: grid;
+    grid-template-columns: var(--wline-key, 21cqw) 1fr auto;
+    align-items: baseline;
+    gap: 0 2.6cqw;
+    padding: 1.5cqw 0;
+  }
+  .wline > em {
+    grid-column: 1 / -1;
+    font-style: normal;
+    font-size: var(--t-label);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  /* The key column is a fixed width, so the key wraps inside it rather than
+     running out of the sheet. Holding it on one line instead would turn a
+     key one word too long into ink over the paper edge — which the check
+     does catch, but a component should not need catching. */
+  .wline > b {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 700;
+    font-size: var(--t-line);
+    line-height: 1.05;
+    color: var(--accent);
+  }
+  .wline > span {
+    font-size: var(--t-line);
+    font-weight: 600;
+    line-height: 1.05;
+    color: var(--ink);
+  }
+  .wline > i {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: var(--t-eg);
+    line-height: 1.05;
+    color: var(--accent-2);
+    white-space: nowrap;
+  }
+  .wline + .wline { border-top: 1px solid var(--rule); }
+
+  /* ---- print -------------------------------------------------------------
+     A wall sheet is looked at for months under room light, not held under a
+     desk lamp. The theme's print palette already darkens secondary ink; the
+     gloss carries meaning here rather than decoration, so it holds the
+     payload colour at full strength. */
+  @media print {
+    .w > span, .wline > i { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+}

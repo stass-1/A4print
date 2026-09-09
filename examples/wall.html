@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kilmininkas · a wall sheet</title>
+<link rel="stylesheet" href="../css/sheet.css">
+<link rel="stylesheet" href="../css/format/a4-landscape.css">
+<link rel="stylesheet" href="../css/mode/wall.css">
+<link rel="stylesheet" href="../css/theme/editorial.css">
+<style>
+/* ==========================================================================
+   Document layer. A wall sheet needs almost nothing here: the mode has
+   already spent the budget. What is left is the sheet's own flourish and
+   the two places where this particular content wants a different size.
+   ========================================================================== */
+@layer doc {
+  .case-lt { font-family: var(--serif); font-size: 2.9cqw; color: var(--accent); line-height: 1; }
+  .case-ru { font-size: var(--t-label); letter-spacing: .16em; text-transform: uppercase;
+             color: var(--ink-3); margin-top: .5cqw; }
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <p>Two A4 sheets, <b>landscape</b>. Print at <kbd>100%</kbd> scale, margins <kbd>None</kbd>, background graphics on.</p>
+  <button class="print-btn" type="button" onclick="window.print()">Print</button>
+</div>
+
+<!-- ==================== 1 · the prepositions ============================ -->
+<article class="sheet">
+<div class="flow">
+
+  <header class="mast">
+    <div>
+      <p class="eyebrow">Lithuanian prepositions · 1</p>
+      <h1>Ko? Kieno?</h1>
+    </div>
+    <div class="mast__aside">
+      <div class="case-lt">Kilmininkas</div>
+      <div class="case-ru">genitive</div>
+    </div>
+  </header>
+
+  <div class="spring--grow"></div>
+  <!-- 12 terms into a grid of 3 × 4. The grid divides exactly: a wall sheet
+       with a half-empty last column prints as a hole, and a hole is the
+       first thing seen from across the room. -->
+  <div class="wall" style="--wall-rows:4">
+    <div class="w"><b>ant</b><span>on top of</span></div>
+    <div class="w"><b>be</b><span>without</span></div>
+    <div class="w"><b>dėl</b><span>because of</span></div>
+    <div class="w"><b>iki</b><span>until</span></div>
+
+    <div class="w"><b>iš</b><span>out of, from</span></div>
+    <div class="w"><b>nuo</b><span>since, from</span></div>
+    <div class="w"><b>po</b><span>after</span></div>
+    <div class="w"><b>prie</b><span>near, by</span></div>
+
+    <div class="w"><b>šalia</b><span>next to</span></div>
+    <div class="w"><b>tarp</b><span>between</span></div>
+    <div class="w"><b>už</b><span>behind</span></div>
+    <div class="w"><b>virš</b><span>above</span></div>
+  </div>
+  <div class="spring--grow"></div>
+
+</div>
+</article>
+
+<!-- ==================== 2 · one word, two cases =========================
+     Three things on one line: this sheet reads from two metres, not three,
+     and says so rather than being quietly held to a distance it cannot make. -->
+<article class="sheet" style="--wall-distance:2">
+<div class="flow">
+
+  <header class="mast">
+    <div>
+      <p class="eyebrow">Lithuanian prepositions · 2</p>
+      <h1>Two cases</h1>
+      <p class="sub">The same word — the meaning picks the question</p>
+    </div>
+    <div class="mast__aside">
+      <div class="case-lt">už · po</div>
+      <div class="case-ru">variable government</div>
+    </div>
+  </header>
+
+  <div class="spring--grow"></div>
+  <section>
+    <div class="wline"><b>už + Ko?</b><span>behind — a place</span><i>už namo</i></div>
+    <div class="wline"><b>už + Ką?</b><span>for — payment, thanks</span><i>ačiū už pagalbą</i></div>
+  </section>
+  <div class="spring--grow"></div>
+
+  <section>
+    <div class="wline"><b>po + Ko?</b><span>after</span><i>po darbo</i></div>
+    <div class="wline"><b>po + Kuo?</b><span>under</span><i>po stalu</i></div>
+    <div class="wline"><b>po + Ką?</b><span>so many each</span><i>po vieną obuolį</i></div>
+  </section>
+  <div class="spring--grow"></div>
+
+</div>
+</article>
+
+<script src="../js/fit.js"></script>
+</body>
+</html>
